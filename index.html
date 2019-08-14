@@ -1,0 +1,35 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>Ballpoint</title>
+    <link rel="stylesheet" href="style.css" /> 
+  </head>
+  <body>
+    <div id="wrapper">
+      <div id="controls">
+        <div id="row-1">
+        <button id="play-pause-button">Pause</button>
+        Method:
+        <select>
+          <option>Euler</option>
+          <option disabled>RK4</option>
+        </select>
+        <!-- Resolution:
+        <input type="range" />
+        <input type="text" value="0.0009765625"/> -->
+      </div>
+      <div id="row-2">
+        <span id="x-differential-equation">x<button class="change-derivative change-derivative-up" id="x-derivative-up">↑</button><span id="x-derivative">''</span><button class="change-derivative change-derivative-down" id="x-derivative-down">↓</button> = <input autocomplete="off" class="rhs" id="x-rhs" type="text" value="-x[0] + y[0]"></span>
+        <!-- x(0) = <input type="text" value="0"> x'(0) = <input type="text" value="3"> -->
+      </div>
+      <div id="row-3">
+        <span id="y-differential-equation">y<button class="change-derivative change-derivative-up" id="y-derivative-up">↑</button><span id="y-derivative">''</span><button class="change-derivative change-derivative-down" id="y-derivative-down">↓</button> = <input autocomplete="off" class="rhs" id="y-rhs" type="text" value="-y[0] + x[0]"></span>
+        <!-- y(0) = <input type="text" value="2"> -->
+      </div>
+      <button id="load" onclick="setup()">Reload</button>
+    </div>
+    <script src="pixi.js"></script>
+    <script src="main_.js"></script>
+  </body>
+</html>
