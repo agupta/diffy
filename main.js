@@ -1,5 +1,5 @@
-// (function () {
-//   "use strict";
+(function () {
+    "use strict";
 
   /*
    * Let's get something working and then add functionality procedurally.
@@ -28,9 +28,10 @@
 
   // the origin is between the 400th and the 401th pixel in each dimension
   var ZOOM = 40;
-  var WIDTH = HEIGHT = 800;
+  var [WIDTH, HEIGHT] = [800,800];
 
-  var particles = []
+  var particles = [];
+  var circles = [];
   var t=0;
 
   // ...
@@ -87,7 +88,7 @@
    * function.
    * 
    */
-  function DifferentialEquation (order, variable, func) {
+   function DifferentialEquation (order, variable, func) {
     this.order = order;
     this.variable = variable;
     this.compute = func;
@@ -126,10 +127,10 @@
       var valueAbove = this.values.get(timeAbove)[coord];
 
       return (valueAbove + (t - timeBelow) * (valueAbove - valueBelow)
-                                     / RESOLUTION);
+       / RESOLUTION);
     } else {
       throw ("getPositionAtTime called with t = " + t +
-            " (outside range of values)");
+        " (outside range of values)");
     };
   };
   Solution.prototype.getValue = function (t, coord) {
@@ -139,7 +140,7 @@
     if (this.values.has(t)) {
       this.values.get(t)[coord] = value;
     } else {
-      entry = {};
+      var entry = {};
       entry[coord] = value;
       this.values.set(t, entry);
     }
@@ -179,14 +180,14 @@
       this.initialConditions();
     }
     while (this.cleanedTo + RESOLUTION < this.renderedTo) {
-       this.clean()
-    }
-    while(!this.iterationsComplete(t)) {
-      this.iterate();
-    }
-    
-    return [this.getPositionAtTime(t, "x"), this.getPositionAtTime(t, "y")];
-  };
+     this.clean()
+   }
+   while(!this.iterationsComplete(t)) {
+    this.iterate();
+  }
+
+  return [this.getPositionAtTime(t, "x"), this.getPositionAtTime(t, "y")];
+};
 
 
   // Because methods will require information from the path of
@@ -204,10 +205,10 @@
   EulerSolution.prototype.initialConditions = function () {
     this.xInitialDerivatives.forEach((derivative, order) =>
       this.setValue(RESOLUTION*order, "x", EulerSolution.derivativeToValue(derivative, order, this.getArrayOfValues(0.0, order, "x")))
-    )
+      )
     this.yInitialDerivatives.forEach((derivative, order) =>
       this.setValue(RESOLUTION*order, "y", EulerSolution.derivativeToValue(derivative, order, this.getArrayOfValues(0.0, order, "y")))
-    )
+      )
   };
   EulerSolution.prototype.iterationsComplete = function (t) {
     // var threshold = (Math.ceil(t/RESOLUTION) + BUFFERSIZE) * RESOLUTION;
@@ -282,7 +283,7 @@
    *    an approximation for x^(n)_m (x^(n) at m).
    *
    */
-  EulerSolution.valuesToDerivative = function (n, values) {
+   EulerSolution.valuesToDerivative = function (n, values) {
     if (values.length !== (n+1)) {
       throw "wrong number of values passed to valuesToDerivative";
     }
@@ -304,8 +305,8 @@
    *
    * outputs x_m+n
    */
-  EulerSolution.derivativeToValue = function (derivative, n,
-   values) {
+   EulerSolution.derivativeToValue = function (derivative, n,
+     values) {
     if (values.length !== n) {
       throw "wrong number of values passed to derivativeToValue";
     }
@@ -409,8 +410,8 @@ document.querySelectorAll(".change-derivative").forEach(function (btn) {
     }
 
     if (options[variable+"Order"] + increment >= 0) {
-    options[variable+"Order"] += increment;
-  }
+      options[variable+"Order"] += increment;
+    }
     derivativeSpan = document.querySelector("#" + variable + "-derivative");
     derivativeSpan.replaceChild(derivativeNotation(options[variable+"Order"]), derivativeSpan.firstChild)
   })
@@ -432,11 +433,19 @@ document.querySelectorAll(".rhs").forEach(function (rhs, _, both) {
     options.xEquation = both[0].value;
     options.yEquation = both[1].value;
     // setup with the system
-  })
-})
+
+    setup();
+
+  });
+});
+
+var restartButton = document.querySelector("#restart")
+
+restartButton.addEventListener("click", setup);
+
 
 function loop (delta) {
-    
+
 
 
     //[circles.x, circle.y] = cartesianToGrid(...particles[0].solution.tick(t));
@@ -447,9 +456,9 @@ function loop (delta) {
 
 
     t += 1/60 * delta; // TODO: lookup what delta really is for accuracy;
-}
+  }
 
-var setup = function () {
+function setup () {
 
   //for (var i = app.stage.children.length - 1; i >= 0; i--) {  app.stage.removeChild(app.stage.children[i]);};
 
@@ -457,7 +466,7 @@ var setup = function () {
 
   for (var i = app.stage.children.length - 1; i >= 0; i--) {  app.stage.removeChild(app.stage.children[i]);};
 
-  t = 0;
+    t = 0;
 
 
   // use options
@@ -480,13 +489,19 @@ var setup = function () {
   //   equationSystem = new DifferentialEquationSystem([equationForX, equationForY]);
   // };
 
-  var equationForX = new DifferentialEquation(options.xOrder, "x", new Function ("t", "x", "y", "return (" + options.xEquation + ");"))
-  var equationForY = new DifferentialEquation(options.yOrder, "y", new Function ("t", "x", "y", "return (" + options.yEquation + ");"))
+  var equationForX = new DifferentialEquation(options.xOrder, "x", new Function ("t", "x", "y",
+    `if (typeof (${options.xEquation}) !== "number") {
+      console.log(typeof ${options.xEquation})
+      throw "The x RHS does not evaluate to a number";
+    };
+    return ${options.xEquation};`))
+  var equationForY = new DifferentialEquation(options.yOrder, "y", new Function ("t", "x", "y",
+    `if (typeof (${options.yEquation}) !== "number") {
+      throw "The y RHS does not evaluate to a number";
+    };
+    return ${options.yEquation};`))
+
   var equationSystem = new DifferentialEquationSystem([equationForX, equationForY]);
-
-
-
-
 
   // TODO: Eventually populate this with the initial conditions as chosen by
   // the user, and get the necessary information from the DOM.
@@ -496,12 +511,12 @@ var setup = function () {
   // initial conditions: at t = 0, x = 0, x' = 3, y = 2
 
   particles = new Array(100).fill(null).map(function () {
-    xInitalDerivatives = new Array(options.xOrder + 1).fill(null).map(() => (Math.random() * 2 - 1));
-    yInitalDerivatives = new Array(options.yOrder + 1).fill(null).map(() => (Math.random() * 2 - 1));
+    var xInitalDerivatives = new Array(options.xOrder + 1).fill(null).map(() => (Math.random() * 2 - 1));
+    var yInitalDerivatives = new Array(options.yOrder + 1).fill(null).map(() => (Math.random() * 2 - 1));
     return new Particle(xInitalDerivatives, yInitalDerivatives);
   }
 
-    );
+  );
 
   for (let p of particles) {
     p.bindSystem(equationSystem);
@@ -526,8 +541,8 @@ var setup = function () {
 
   app.ticker.add(loop);
 
-  }
+}
 
 setup();
 
-// }());
+}());
