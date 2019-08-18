@@ -29,12 +29,11 @@
 
   // the origin is between the 400th and the 401th pixel in each dimension
   var ZOOM = 40;
-
   var [WIDTH, HEIGHT] = [800,800];
 
   var particles = [];
   var circles = [];
-  var t=0;
+  var t = 0;
 
   // ...
 
@@ -415,7 +414,8 @@ document.querySelectorAll(".change-derivative").forEach(function (btn) {
       options[variable+"Order"] += increment;
     }
     var derivativeSpan = document.querySelector("#" + variable + "-derivative");
-    derivativeSpan.replaceChild(derivativeNotation(options[variable+"Order"]), derivativeSpan.firstChild)
+    derivativeSpan.replaceChild(derivativeNotation(options[variable+"Order"]), derivativeSpan.firstChild);
+    setup();
   })
 })
 
