@@ -7,6 +7,7 @@
    * Trust that this functionality can be added, even if it means refactoring,
    * stick to what you know first, and then as you learn about graphics
    * programming.
+   */
 
   /*
    * Parameters that dictate the display of the particles:
@@ -28,6 +29,7 @@
 
   // the origin is between the 400th and the 401th pixel in each dimension
   var ZOOM = 40;
+
   var [WIDTH, HEIGHT] = [800,800];
 
   var particles = [];
@@ -412,7 +414,7 @@ document.querySelectorAll(".change-derivative").forEach(function (btn) {
     if (options[variable+"Order"] + increment >= 0) {
       options[variable+"Order"] += increment;
     }
-    derivativeSpan = document.querySelector("#" + variable + "-derivative");
+    var derivativeSpan = document.querySelector("#" + variable + "-derivative");
     derivativeSpan.replaceChild(derivativeNotation(options[variable+"Order"]), derivativeSpan.firstChild)
   })
 })
