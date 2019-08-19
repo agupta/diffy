@@ -54,7 +54,7 @@
     if (k > n-k) {
       return binom(n, n-k);
     }
-    if (k===0) {
+    if (k === 0) {
       return 1;
     }
     return n * binom(n-1, k-1) / k;
@@ -354,7 +354,7 @@
   // this is a flip in the y axis, followed by a scale, followed by a translation
   // and its oddly satisfying.
     const translation = [WIDTH, HEIGHT].map((i) => ((i-1)/2));
-    return [x, -y].map((i) => i * ZOOM).map((i, index) => i + translation[index]).map(Math.round);
+    return [x, -y].map((i) => i * ZOOM).map((i, index) => i + translation[index]);
   };
   const gridToCartesian = function (x, y) {
     const translation = [WIDTH, HEIGHT].map((i) => ((i-1)/2));
@@ -449,13 +449,12 @@
 
   function loop (delta) {
     // [circles.x, circle.y] = cartesianToGrid(...particles[0].solution.tick(t));
-
-    for (let i=0; i<100; i++) {
-      [circles[i].x, circles[i].y] = cartesianToGrid(...particles[i].solution.tick(t));
+    if (!PAUSED) {
+      for (let i=0; i<100; i++) {
+        [circles[i].x, circles[i].y] = cartesianToGrid(...particles[i].solution.tick(t));
+      }
+      t += 1/60 * delta; // TODO: lookup what delta really is for accuracy;
     }
-
-
-    t += 1/60 * delta; // TODO: lookup what delta really is for accuracy;
   }
 
   function setup () {
@@ -515,9 +514,7 @@
       const xInitalDerivatives = new Array(options.xOrder + 1).fill(null).map(() => (Math.random() * 2 - 1));
       const yInitalDerivatives = new Array(options.yOrder + 1).fill(null).map(() => (Math.random() * 2 - 1));
       return new Particle(xInitalDerivatives, yInitalDerivatives);
-    }
-
-    );
+    });
 
     for (const p of particles) {
       p.bindSystem(equationSystem);
