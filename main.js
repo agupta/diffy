@@ -12,20 +12,24 @@
   /*
    * Parameters that dictate the display of the particles:
    *
-   * I expect these to be eventually dynamically set on pageload, but for now these
-   * will be set to fixed values.
+   * I expect these to be eventually dynamically set on pageload, but for now
+   * these will be set to fixed values.
    *
    */
 
   // TODO: Write code for dynamic setting, this may need to be done after a few
   // frames have been drawn.
+
+  // Eventually we want to let the user set these, and also actually use them
+  // in our computation
   let PAUSED = false; // Pause/play button functionality.
   const TICKRATE = 1.0; // Effectively speed up or slow down the flow of time.
-  const FORWARDBUFFERSIZE = 0 || "UNIMPLEMENTED"; // Probably best to leave these for later.
-  const BACKWARDBUFFERSIZE = 0 || "UNIMPLEMENTED";
-  const RESOLUTION = 1/128; // The smaller, the more accurate the solution. Try 1/1024 if Floating point errors arise.
+  const FORWARDBUFFERSIZE = 0; // Probably best to leave these for later.
+  const BACKWARDBUFFERSIZE = 0;
+  // The smaller, the more accurate the solution. Try 1/1024 if floating point
+  // errors arise.
+  const RESOLUTION = 1/128;
   const FRAMERATE = 60;
-
 
   // the origin is between the 400th and the 401th pixel in each dimension
   const ZOOM = 40;
@@ -45,7 +49,7 @@
   // TODO: Implement a reset button, that goes back to the dynamic setting.
 
 
-  var binom = function (n, k) {
+  function binom (n, k) {
     // uses nCk = (n/k) * (n-1)C(k-1)
     if (k > n-k) {
       return binom(n, n-k);
@@ -129,8 +133,8 @@
       return (valueAbove + (t - timeBelow) * (valueAbove - valueBelow)
        / RESOLUTION);
     } else {
-      throw ("getPositionAtTime called with t = " + t +
-        " (outside range of values)");
+      throw new Error(`getPositionAtTime called with t = ${t} (outside range` +
+        "of values)");
     }
   };
   Solution.prototype.getValue = function (t, coord) {
@@ -147,7 +151,7 @@
   };
   Solution.prototype.removeValue = function (t, coord) {
     if (!this.values.has(t)) {
-      throw "removeValue called with a t that didn't exist in values";
+      throw new Error("removeValue called with a t not in values");
     } else {
       const point = this.values.get(t);
       if (Object.prototype.hasOwnProperty.call(point, coord)) {
@@ -157,14 +161,15 @@
         } else if (coords === 1) {
           this.values.delete(t);
         } else {
-          throw "point has wrong number of coordinates";
+          throw new Error("point has wrong number of coordinates");
         }
       } else {
-        throw "removeValue was called at a point that doesn't have the coordinate";
+        throw new Error("removeValue called at point with coordinate missing");
       }
     }
   };
-  Solution.prototype.getArrayOfValues = function (start, numberOfValues, coord) {
+  Solution.prototype.getArrayOfValues = function (start, numberOfValues,
+      coord) {
     const arr = [];
     while (numberOfValues > 0) {
       arr.push(this.getValue(start, coord));
@@ -222,12 +227,12 @@
   };
   EulerSolution.prototype.iterate = function () {
     // convert values to derivatives at t=0
-    //
     // calculate xEquation.compute at t=0, with values
 
     // how many values do we need?
 
-    // look at the orders, we will use that many values (starting at t, and going up in increments of RESOLUTION)
+    // look at the orders, we will use that many values (starting at t, and
+    // going up in increments of RESOLUTION)
 
     const xOrder = this.system.xEquation.order;
     const yOrder = this.system.yEquation.order;
@@ -284,7 +289,7 @@
    */
   EulerSolution.valuesToDerivative = function (n, values) {
     if (values.length !== (n+1)) {
-      throw "wrong number of values passed to valuesToDerivative";
+      throw new Error("wrong number of values passed to valuesToDerivative");
     }
     let sum = 0;
     for (let i = 0; i <= n; i++) {
@@ -307,7 +312,7 @@
   EulerSolution.derivativeToValue = function (derivative, n,
       values) {
     if (values.length !== n) {
-      throw "wrong number of values passed to derivativeToValue";
+      throw new Error("wrong number of values passed to derivativeToValue");
     }
     let sum = 0;
     for (let i = 1; i<=n; i++) {
@@ -378,7 +383,7 @@
 
   const derivativeNotation = function (n) {
     if (n <= 3) {
-      return document.createTextNode("′".repeat(n)); // this is the prime symbol.
+      return document.createTextNode("′".repeat(n)); // prime symbol (U+2032)
     } else if (n > 3) {
       const sup = document.createElement("sup");
       sup.appendChild(document.createTextNode(`(${n})`));
@@ -396,26 +401,27 @@
       } else if (btn.parentNode.id === "y-differential-equation") {
         variable = "y";
       } else {
-        throw "The HTML is messed up." + btn.parentNode.id;
+        throw new Error("The HTML is messed up.");
       }
       if (btn.classList.contains("change-derivative-up")) {
         increment = 1;
       } else if (btn.classList.contains("change-derivative-down")) {
         increment = -1;
       } else {
-        throw "The HTML is messed up.";
+        throw new Error("The HTML is messed up.");
       }
 
       if (options[variable+"Order"] + increment >= 0) {
         options[variable+"Order"] += increment;
       }
-      const derivativeSpan = document.querySelector("#" + variable + "-derivative");
-      derivativeSpan.replaceChild(derivativeNotation(options[variable+"Order"]), derivativeSpan.firstChild);
+      const derivativeSpan = document.querySelector(`#${variable}-derivative`);
+      derivativeSpan.replaceChild(derivativeNotation(options[variable+"Order"]),
+          derivativeSpan.firstChild);
       setup();
     });
   });
 
-  var options = {
+  const options = {
     xEquation: "-x[0] + y[0]",
     xOrder: 2,
     xDerivatives: [0, 3],
@@ -484,18 +490,18 @@
     //   equationSystem = new DifferentialEquationSystem([equationForX, equationForY]);
     // };
 
-    const equationForX = new DifferentialEquation(options.xOrder, "x", new Function("t", "x", "y",
-        `if (typeof (${options.xEquation}) !== "number") {
-      console.log(typeof ${options.xEquation})
-      throw "The x RHS does not evaluate to a number";
-    };
-    return ${options.xEquation};`));
-    const equationForY = new DifferentialEquation(options.yOrder, "y", new Function("t", "x", "y",
-        `if (typeof (${options.yEquation}) !== "number") {
-      throw "The y RHS does not evaluate to a number";
-    };
-    return ${options.yEquation};`));
-
+    const equationForX = new DifferentialEquation(options.xOrder, "x",
+        new Function("t", "x", "y",
+            `if (typeof (${options.xEquation}) !== "number") {
+              throw new Error("The x RHS does not evaluate to a number");
+            };
+            return ${options.xEquation};`));
+    const equationForY = new DifferentialEquation(options.yOrder, "y",
+        new Function("t", "x", "y",
+            `if (typeof (${options.yEquation}) !== "number") {
+              throw new Error("The y RHS does not evaluate to a number");
+            };
+            return ${options.yEquation};`));
     equationSystem = new DifferentialEquationSystem([equationForX, equationForY]);
 
     // TODO: Eventually populate this with the initial conditions as chosen by
