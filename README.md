@@ -1,4 +1,4 @@
 # Diffy
 Visualiser for differential equations that describe motion
 
-negzero.github.io/diffy
+<negzero.github.io/diffy>
