@@ -38,7 +38,6 @@
   // ...
 
 
-
   // TODO: Update the user input fields in the DOM
   
   // TODO: Use html5 storage to save and load these values.
