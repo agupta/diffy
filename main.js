@@ -150,7 +150,7 @@
       throw "removeValue called with a t that didn't exist in values";
     } else {
       var point = this.values.get(t);
-      if (point.hasOwnProperty(coord)) {
+      if (Object.prototype.hasOwnProperty.call(point, coord)) {
         var coords = Object.keys(point).length;
         if (coords === 2) {
           delete point[coord];
@@ -395,9 +395,9 @@
     btn.addEventListener("click", function () {
       var variable, increment;
       if (btn.parentNode.id === "x-differential-equation") {
-        var variable = "x";
+        variable = "x";
       } else if (btn.parentNode.id === "y-differential-equation") {
-        var variable = "y";
+        variable = "y";
       } else {
         throw "The HTML is messed up." + btn.parentNode.id;
       }
@@ -502,7 +502,7 @@
     };
     return ${options.yEquation};`));
 
-    var equationSystem = new DifferentialEquationSystem([equationForX, equationForY]);
+    equationSystem = new DifferentialEquationSystem([equationForX, equationForY]);
 
     // TODO: Eventually populate this with the initial conditions as chosen by
     // the user, and get the necessary information from the DOM.
