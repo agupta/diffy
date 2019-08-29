@@ -422,10 +422,10 @@
   });
 
   const options = {
-    xEquation: "-x[0] + y[0]",
+    xEquation: "y[0] - x[0]",
     xOrder: 2,
     xDerivatives: [0, 3],
-    yEquation: "-y[0] + x[0]",
+    yEquation: "x[0] - y[0]",
     yOrder: 2,
     yDerivatives: [2],
   };
