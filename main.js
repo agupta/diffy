@@ -38,6 +38,7 @@
   let particles = [];
   let circles = [];
   let t = 0;
+  let numOfParticles = 0;
 
   // ...
 
@@ -424,11 +425,33 @@
   const options = {
     xEquation: "y[0] - x[0]",
     xOrder: 2,
-    xDerivatives: [0, 3],
+    xDerivatives: ["random", "random"],
     yEquation: "x[0] - y[0]",
     yOrder: 2,
-    yDerivatives: [2],
+    yDerivatives: ["random", "random"]
   };
+
+  // TODO: Prevent invalid characters input in the initial conditions.
+
+  document.querySelectorAll(".initial-conditions").forEach(function (span) {
+    span.addEventListener("input", function (e) {
+      if (e.target.matches(".initial-condition > input")) {
+
+        // the first character of the parent's span id
+        let variable = e.target.parentNode.id[0];
+        // the last character of the parent span's id.
+        let index = parseInt(e.target.parentNode.id.slice(-1));
+        let value = Number(e.target.value);
+        console.log(e);
+        if (e.target.value === "") {
+          value = "random";
+        }
+        options[variable + "Derivatives"][index] = value;
+        setup();
+      }
+    });
+  })
+
 
   // both is the NodeList returned by querySelectorAll
   document.querySelectorAll(".rhs").forEach(function (rhs, _, both) {
@@ -450,7 +473,7 @@
   function loop (delta) {
     // [circles.x, circle.y] = cartesianToGrid(...particles[0].solution.tick(t));
     if (!PAUSED) {
-      for (let i=0; i<100; i++) {
+      for (let i=0; i<numOfParticles; i++) {
         [circles[i].x, circles[i].y] = cartesianToGrid(...particles[i].solution.tick(t));
       }
       t += 1/60 * delta; // TODO: lookup what delta really is for accuracy;
@@ -510,18 +533,55 @@
     // particles = [new Particle (options.xDerivatives, options.yDerivatives)];
     // initial conditions: at t = 0, x = 0, x' = 3, y = 2
 
-    particles = new Array(100).fill(null).map(function () {
-      const xInitalDerivatives = new Array(options.xOrder + 1).fill(null).map(() => (Math.random() * 2 - 1));
-      const yInitalDerivatives = new Array(options.yOrder + 1).fill(null).map(() => (Math.random() * 2 - 1));
+
+    numOfParticles = (options.xDerivatives.includes("random") ||
+        options.yDerivatives.includes("random")) ? 100 : 1;
+
+    particles = new Array(numOfParticles).fill(null).map(function () {
+      const xInitalDerivatives = options.xDerivatives.map( i => {
+        if (i === "random") {
+          return Math.random() * 2 - 1;
+        }
+        return i;
+      })
+      const yInitalDerivatives = options.yDerivatives.map( i => {
+        if (i === "random") {
+          return Math.random() * 2 - 1;
+        }
+        return i;
+      })
       return new Particle(xInitalDerivatives, yInitalDerivatives);
-    });
+    })
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    // particles = new Array(100).fill(null).map(function () {
+    //   const xInitalDerivatives = new Array(options.xOrder + 1).fill(null).map(() => (Math.random() * 2 - 1));
+    //   const yInitalDerivatives = new Array(options.yOrder + 1).fill(null).map(() => (Math.random() * 2 - 1));
+    //   return new Particle(xInitalDerivatives, yInitalDerivatives);
+    // });
 
     for (const p of particles) {
       p.bindSystem(equationSystem);
       p.solution = p.solveEuler();
     }
 
-    circles = new Array(100).fill(null).map(function () {
+    circles = new Array(numOfParticles).fill(null).map(function () {
       const circle = new PIXI.Graphics();
       circle.beginFill(0xE03E52);
       circle.drawCircle(0, 0, 3);
