@@ -396,14 +396,11 @@
   // Really inelegant, but how much more elegant can it get?
   document.querySelectorAll(".change-derivative").forEach(function (btn) {
     btn.addEventListener("click", function () {
-      let variable; let increment;
-      if (btn.parentNode.id === "x-differential-equation") {
-        variable = "x";
-      } else if (btn.parentNode.id === "y-differential-equation") {
-        variable = "y";
-      } else {
-        throw new Error("The HTML is messed up.");
-      }
+      let increment;
+
+      // first letter of id e.g. #x-differential-equation -> x
+      let variable = btn.parentNode.id[0]; 
+
       if (btn.classList.contains("change-derivative-up")) {
         increment = 1;
       } else if (btn.classList.contains("change-derivative-down")) {
@@ -412,12 +409,62 @@
         throw new Error("The HTML is messed up.");
       }
 
+      // TODO: Perhaps disable the down button when the order is 0?
+
       if (options[variable+"Order"] + increment >= 0) {
         options[variable+"Order"] += increment;
       }
+
+
       const derivativeSpan = document.querySelector(`#${variable}-derivative`);
       derivativeSpan.replaceChild(derivativeNotation(options[variable+"Order"]),
           derivativeSpan.firstChild);
+
+      const initialConditionsSpan = document.querySelector(
+          `#${variable}-initial-conditions`);
+
+      if (initialConditionsSpan.childElementCount <
+          options[variable+"Order"]) {
+        // GENERATE ANOTHER INITIAL CONDITION NODE AND ADD IT TO THE END.
+
+        /*
+         * e.g.
+         * <span class="initial-condition" id="y-initial-condition-3">
+         *  y′′′(0) = 
+         *  <input type="number" step="any" autocomplete="off"
+         *      placeholder="(random)">
+         * </span>
+         */
+        let initialConditionSpan = document.createElement("span");
+        initialConditionSpan.classList.add("initial-condition");
+        initialConditionSpan.id = `${variable}-initial-condition-${
+            options[variable+"Order"] - 1
+            }`;
+
+        let text1 = document.createTextNode(variable);
+        initialConditionSpan.appendChild(text1);
+
+        let text2 = derivativeNotation(options[variable+"Order"] - 1);
+        initialConditionSpan.appendChild(text2);
+
+        let text3 = document.createTextNode("(0) = ");
+        initialConditionSpan.appendChild(text3);
+
+        let input = document.createElement("input");
+        input.type = "number";
+        input.step = "any";
+        input.autocomplete = "off";
+        input.placeholder = "(random)";
+        initialConditionSpan.appendChild(input);
+
+        initialConditionSpan.normalize(); // merges the textnodes
+
+        initialConditionsSpan.appendChild(initialConditionSpan);
+
+      } else if (initialConditionsSpan.childElementCount >
+          options[variable+"Order"]) {
+        // REMOVE LAST CHILD
+      }
       setup();
     });
   });
