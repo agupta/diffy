@@ -184,9 +184,9 @@
     if (!this.values.has(0.0)) {
       this.initialConditions();
     }
-    // while (this.cleanedTo + RESOLUTION < this.renderedTo) {
-    //   this.clean();
-    // }
+    while (this.cleanedTo + RESOLUTION < this.renderedTo) {
+      this.clean();
+    }
     while (!this.iterationsComplete(t)) {
       this.iterate();
     }
