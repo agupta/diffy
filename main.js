@@ -184,9 +184,9 @@
     if (!this.values.has(0.0)) {
       this.initialConditions();
     }
-    while (this.cleanedTo + RESOLUTION < this.renderedTo) {
-      this.clean();
-    }
+    // while (this.cleanedTo + RESOLUTION < this.renderedTo) {
+    //   this.clean();
+    // }
     while (!this.iterationsComplete(t)) {
       this.iterate();
     }
@@ -396,35 +396,16 @@
   // Really inelegant, but how much more elegant can it get?
   document.querySelectorAll(".change-derivative").forEach(function (btn) {
     btn.addEventListener("click", function () {
-      let increment;
 
       // first letter of id e.g. #x-differential-equation -> x
       let variable = btn.parentNode.id[0]; 
-
-      if (btn.classList.contains("change-derivative-up")) {
-        increment = 1;
-      } else if (btn.classList.contains("change-derivative-down")) {
-        increment = -1;
-      } else {
-        throw new Error("The HTML is messed up.");
-      }
-
-      // TODO: Perhaps disable the down button when the order is 0?
-
-      if (options[variable+"Order"] + increment >= 0) {
-        options[variable+"Order"] += increment;
-      }
-
-
-      const derivativeSpan = document.querySelector(`#${variable}-derivative`);
-      derivativeSpan.replaceChild(derivativeNotation(options[variable+"Order"]),
-          derivativeSpan.firstChild);
-
       const initialConditionsSpan = document.querySelector(
           `#${variable}-initial-conditions`);
 
-      if (initialConditionsSpan.childElementCount <
-          options[variable+"Order"]) {
+      if (btn.classList.contains("change-derivative-up")) {
+        // UP
+        options[variable + "Order"]++;
+        options[variable + "Derivatives"].push("random");
         // GENERATE ANOTHER INITIAL CONDITION NODE AND ADD IT TO THE END.
 
         /*
@@ -460,11 +441,28 @@
         initialConditionSpan.normalize(); // merges the textnodes
 
         initialConditionsSpan.appendChild(initialConditionSpan);
-
-      } else if (initialConditionsSpan.childElementCount >
-          options[variable+"Order"]) {
-        // REMOVE LAST CHILD
+      } else if (btn.classList.contains("change-derivative-down")) {
+        // DOWN
+        if (options[variable + "Order"] - 1 >= 0) { // never < 0
+          options[variable + "Order"]--;
+          options[variable + "Derivatives"].pop();
+          // remove a child
+          // TODO: Have a cache so initial conditions can be restored to what
+          // they were if they were removed by decreasing the order of the
+          // derivative.
+          initialConditionsSpan.removeChild(initialConditionsSpan.lastElementChild);
+        }
+      } else {
+        throw new Error("The HTML is messed up.");
       }
+
+      // TODO: Perhaps disable the down button when the order is 0?
+
+      const derivativeSpan = document.querySelector(`#${variable}-derivative`);
+      derivativeSpan.replaceChild(derivativeNotation(options[variable+"Order"]),
+          derivativeSpan.firstChild);
+
+      
       setup();
     });
   });
