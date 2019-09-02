@@ -597,24 +597,7 @@
       })
       return new Particle(xInitalDerivatives, yInitalDerivatives);
     })
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+    
     // particles = new Array(100).fill(null).map(function () {
     //   const xInitalDerivatives = new Array(options.xOrder + 1).fill(null).map(() => (Math.random() * 2 - 1));
     //   const yInitalDerivatives = new Array(options.yOrder + 1).fill(null).map(() => (Math.random() * 2 - 1));
