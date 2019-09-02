@@ -224,7 +224,7 @@
     // } else {
     //   return (Object.keys(this.values.get(threshold)).length === 2)
     // }
-    return this.renderedTo > t;
+    return this.renderedTo > t + RESOLUTION;
   };
   EulerSolution.prototype.iterate = function () {
     // convert values to derivatives at t=0
