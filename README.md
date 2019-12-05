@@ -1,4 +1,4 @@
 # Diffy
 Visualiser for differential equations that describe motion
 
-<https://negzero.github.io/diffy>
+<https://agupta.github.io/diffy>
